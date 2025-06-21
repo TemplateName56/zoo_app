@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet } from "react-native";
-import { Card, Text, Button, Avatar } from "react-native-paper";
+import {Card, Text, Button, Avatar, useTheme} from "react-native-paper";
 import {Stack, useRouter} from "expo-router";
 import api from "./api/api";
 
@@ -13,16 +13,20 @@ interface Chat {
 export default function ChatListScreen() {
     const [chats, setChats] = useState<Chat[]>([]);
     const router = useRouter();
+    const theme = useTheme();
 
     useEffect(() => {
         api.get("/chats").then(res => setChats(res.data));
     }, []);
 
     return (
-        <ScrollView style={{backgroundColor: "#f7f7f7"}} contentContainerStyle={styles.container}>
+        <ScrollView style={{backgroundColor: theme.colors.background}} contentContainerStyle={styles.container}>
             <Stack.Screen
                 options={{
                     title: 'Чати',
+                    headerStyle: { backgroundColor: theme.colors.elevation.level1 },
+                    headerTintColor: theme.colors.primary,
+                    headerTitleStyle: { color: theme.colors.primary },
                 }}
             />
             <Text variant="headlineMedium" style={{marginBottom: 18, textAlign: "center"}}>Ваші чати</Text>
@@ -52,5 +56,5 @@ export default function ChatListScreen() {
 
 const styles = StyleSheet.create({
     container: { padding: 20, paddingBottom: 40 },
-    card: { marginBottom: 14, borderRadius: 14, elevation: 2, backgroundColor: "#fff" },
+    card: { marginBottom: 14, borderRadius: 14, elevation: 2},
 });

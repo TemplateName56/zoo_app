@@ -9,19 +9,22 @@ cloudinary.config({
 
 // GET /animals
 async function getAnimals(req, res) {
-    const { type, breed, status, owner_id } = req.query;
+    const { type, breed, owner_id } = req.query;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
 
-    let sql = "SELECT * FROM animals WHERE 1=1";
-    let countSql = "SELECT COUNT(*) as total FROM animals WHERE 1=1";
+    let sql = `SELECT a.* FROM animals a
+           JOIN users u ON a.owner_id = u.id
+           WHERE u.isBlocked = 0`;
+    let countSql = `SELECT COUNT(*) as total FROM animals a
+                JOIN users u ON a.owner_id = u.id
+                WHERE u.isBlocked = 0`;
     const params = [];
     const countParams = [];
 
     if (type)      { sql += " AND type=?";      countSql += " AND type=?";      params.push(type);      countParams.push(type); }
     if (breed)     { sql += " AND breed=?";     countSql += " AND breed=?";     params.push(breed);     countParams.push(breed); }
-    if (status)    { sql += " AND status=?";    countSql += " AND status=?";    params.push(status);    countParams.push(status); }
     if (owner_id)  { sql += " AND owner_id=?";  countSql += " AND owner_id=?";  params.push(owner_id);  countParams.push(owner_id); }
 
     sql += " ORDER BY created_at DESC LIMIT ? OFFSET ?";
@@ -33,6 +36,13 @@ async function getAnimals(req, res) {
     const [rows] = await pool.query(sql, params);
 
     res.json({ items: rows, total });
+}
+
+async function getAnimalsByOwnerId(req, res) {
+    const { owner_id } = req.query;
+    console.log(req.query);
+    const [rows] = await pool.query("SELECT * FROM animals WHERE owner_id = ? ORDER BY created_at DESC", [owner_id]);
+    res.json(rows); // повертаємо масив
 }
 
 // GET /animals/mine
@@ -53,7 +63,7 @@ async function getAnimalById(req, res) {
 // POST /animals
 async function createAnimal(req, res) {
     const userId = req.user.id;
-    let { name, type, breed, sex, age, description, photo_url, status, photos, lat, lng } = req.body;
+    let { name, type, breed, sex, age, description, photo_url, photos, lat, lng } = req.body;
     if (!name || !type || !photo_url) return res.status(400).json({ error: "Missing fields" });
 
     try {
@@ -70,9 +80,9 @@ async function createAnimal(req, res) {
 
         // Додаємо тваринку (додаємо lat, lng)
         const [result] = await pool.query(
-            `INSERT INTO animals (name, type, breed, sex, age, description, photo_url, owner_id, status, lat, lng)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [name, type, breed, sex, age, description, mainPhotoUrl, userId, status || "available", lat || 0, lng || 0]
+            `INSERT INTO animals (name, type, breed, sex, age, description, photo_url, owner_id, lat, lng)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [name, type, breed, sex, age, description, mainPhotoUrl, userId, lat || 0, lng || 0]
         );
         const animalId = result.insertId;
 
@@ -108,12 +118,12 @@ async function createAnimal(req, res) {
 async function updateAnimal(req, res) {
     const { id } = req.params;
     const userId = req.user.id;
-    const { name, type, breed, sex, age, description, photo_url, status, lat, lng } = req.body;
+    const { name, type, breed, sex, age, description, photo_url, lat, lng } = req.body;
     const [animals] = await pool.query("SELECT owner_id FROM animals WHERE id = ?", [id]);
     if (!animals.length || animals[0].owner_id !== userId) return res.status(403).json({ error: "Forbidden" });
     await pool.query(
-        `UPDATE animals SET name=?, type=?, breed=?, sex=?, age=?, description=?, photo_url=?, status=?, lat=?, lng=? WHERE id=?`,
-        [name, type, breed, sex, age, description, photo_url, status, lat || null, lng || null, id]
+        `UPDATE animals SET name=?, type=?, breed=?, sex=?, age=?, description=?, photo_url=?, lat=?, lng=? WHERE id=?`,
+        [name, type, breed, sex, age, description, photo_url, lat || null, lng || null]
     );
     res.json({ success: true });
 }
@@ -122,8 +132,11 @@ async function updateAnimal(req, res) {
 async function deleteAnimal(req, res) {
     const { id } = req.params;
     const userId = req.user.id;
+    const isAdmin = req.user.isAdmin || req.user.role === "admin";
+    console.log(req.user.isAdmin);
+    console.log(isAdmin);
     const [animals] = await pool.query("SELECT owner_id FROM animals WHERE id = ?", [id]);
-    if (!animals.length || animals[0].owner_id !== userId) return res.status(403).json({ error: "Forbidden" });
+    if (!animals.length || (animals[0].owner_id !== userId && !isAdmin)) return res.status(403).json({ error: "Forbidden" });
     await pool.query("DELETE FROM animals WHERE id = ?", [id]);
     res.json({ success: true });
 }
@@ -142,8 +155,12 @@ async function searchAnimals(req, res) {
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
 
-    let sql = "SELECT * FROM animals WHERE 1=1";
-    let countSql = "SELECT COUNT(*) as total FROM animals WHERE 1=1";
+    let sql = `SELECT a.* FROM animals a
+           JOIN users u ON a.owner_id = u.id
+           WHERE u.isBlocked = 0`;
+    let countSql = `SELECT COUNT(*) as total FROM animals a
+                JOIN users u ON a.owner_id = u.id
+                WHERE u.isBlocked = 0`;
     const params = [];
     const countParams = [];
 
@@ -197,4 +214,5 @@ module.exports = {
     getAnimalPhotos,
     searchAnimals,
     getBreeds,
+    getAnimalsByOwnerId
 };

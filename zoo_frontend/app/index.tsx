@@ -1,6 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, RefreshControl, ScrollView } from "react-native";
-import { Button, Card, Text, ActivityIndicator, Avatar, TextInput, Modal, Portal, HelperText, Menu } from "react-native-paper";
+import {
+    Button,
+    Card,
+    Text,
+    ActivityIndicator,
+    Avatar,
+    TextInput,
+    Modal,
+    Portal,
+    HelperText,
+    Menu,
+    useTheme
+} from "react-native-paper";
 import { Stack, useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import api from "./api/api";
@@ -19,6 +31,8 @@ const fetchAnimals = async (params: any) => {
 };
 
 export default function AnimalsScreen() {
+    const theme = useTheme();
+
     const [page, setPage] = useState(1);
     const [filterVisible, setFilterVisible] = useState(false);
 
@@ -55,8 +69,12 @@ export default function AnimalsScreen() {
     const animals = data?.items ?? [];
 
     return (
-        <View style={{flex:1}}>
-            <Stack.Screen options={{ title: 'Головна' }} />
+        <View style={{flex:1, backgroundColor: theme.colors.background }}>
+            <Stack.Screen options={{
+                title: 'Головна',
+                headerStyle: { backgroundColor: theme.colors.elevation.level1 },
+                headerTintColor: theme.colors.primary,
+                headerTitleStyle: { color: theme.colors.primary }, }} />
             <Button
                 icon="filter"
                 mode="outlined"
@@ -98,7 +116,6 @@ export default function AnimalsScreen() {
                                         <Avatar.Image
                                             {...props}
                                             source={{ uri: animal.photo_url }}
-                                            style={{ backgroundColor: "#eee" }}
                                         />
                                     )}
                                 />
@@ -135,7 +152,7 @@ export default function AnimalsScreen() {
                     Чати
                 </Button>
                 <Button icon="bookmark" mode="text" onPress={() => router.push("/bookmarks")}>
-                    Закладки
+                    Обране
                 </Button>
                 {global.user === null && (
                     <Button icon="logout" mode="text" onPress={() => router.push("/login")}>
@@ -146,7 +163,11 @@ export default function AnimalsScreen() {
 
             {/* --- Бокове модальне вікно пошуку --- */}
             <Portal>
-                <Modal visible={filterVisible} onDismiss={() => setFilterVisible(false)} contentContainerStyle={styles.modal}>
+                <Modal visible={filterVisible} onDismiss={() => setFilterVisible(false)}
+                       contentContainerStyle={[
+                           styles.modal,
+                           { backgroundColor: theme.colors.surface }
+                       ]}>
                     <Text style={{fontSize:18, fontWeight:"bold", marginBottom:10}}>Пошук тварин</Text>
                     <Text style={{marginBottom: 4}}>Порода</Text>
                     <Menu
@@ -156,7 +177,7 @@ export default function AnimalsScreen() {
                             <Button
                                 mode="outlined"
                                 onPress={() => setBreedMenuVisible(true)}
-                                style={{ justifyContent: 'flex-start', backgroundColor: "#fff" }}
+                                style={{ justifyContent: 'flex-start'}}
                                 contentStyle={{ flexDirection: 'row', justifyContent: 'flex-start' }}
                             >
                                 {breed || "Оберіть породу"}
@@ -178,21 +199,21 @@ export default function AnimalsScreen() {
                     <TextInput
                         label="Вік"
                         value={age}
-                        style={{backgroundColor: "#fff", marginBottom: 8}}
+                        style={{marginBottom: 8}}
                         keyboardType="numeric"
                         onChangeText={setAge}
                     />
                     <TextInput
                         label="Широта"
                         value={lat}
-                        style={{backgroundColor: "#fff", marginBottom: 8}}
+                        style={{marginBottom: 8}}
                         keyboardType="numeric"
                         onChangeText={setLat}
                     />
                     <TextInput
                         label="Довгота"
                         value={lng}
-                        style={{backgroundColor: "#fff", marginBottom: 14}}
+                        style={{marginBottom: 14}}
                         keyboardType="numeric"
                         onChangeText={setLng}
                     />
@@ -211,14 +232,14 @@ export default function AnimalsScreen() {
 }
 
 const styles = StyleSheet.create({
-    bg: { backgroundColor: "#f7f7f7" },
+    bg: {  },
     container: { padding: 16, paddingBottom: 32 },
     addBtn: { marginBottom: 16, borderRadius: 12 },
-    card: { marginBottom: 16, borderRadius: 18, backgroundColor: "#fff", elevation: 3 },
+    card: { marginBottom: 16, borderRadius: 18, elevation: 3 },
     image: { height: 180, borderRadius: 12, marginHorizontal: 12, marginBottom: 10, marginTop: 4 },
-    desc: { color: "#777", marginTop: 6 },
+    desc: {  marginTop: 6 },
     pagination: { marginTop: 16, flexDirection: "row", alignItems: "center", justifyContent: "center" },
     pageNumber: { marginHorizontal: 16, fontSize: 16 },
     menu: { flexDirection: "row", justifyContent: "space-around", marginTop: 18 },
-    modal: { backgroundColor: 'white', padding: 24, margin: 20, borderRadius: 16 }
+    modal: { padding: 24, margin: 20, borderRadius: 16 }
 });

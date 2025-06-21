@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
-import { TextInput, Button, Text, Card } from "react-native-paper";
+import { TextInput, Button, Text, Card, useTheme } from "react-native-paper";
 import {Stack, useRouter} from "expo-router";
 import api from "./api/api";
 
 export default function RegisterScreen() {
-    const [data, setData] = useState({ name: "", email: "", password: "" });
+    const [data, setData] = useState({ name: "", email: "", password: "", phone: "" });
     const [err, setErr] = useState("");
     const router = useRouter();
+    const theme = useTheme();
 
     const register = async () => {
         setErr("");
@@ -15,15 +16,28 @@ export default function RegisterScreen() {
             await api.post("/auth/register", data);
             router.push("/login");
         } catch (e) {
-            setErr("Помилка реєстрації");
+            // @ts-ignore
+            if (e.response && e.response.data && e.response.data.error) {
+                // @ts-ignore
+                setErr(e.response.data.error);
+                // @ts-ignore
+            } else if (e.message) {
+                // @ts-ignore
+                setErr("Помилка реєстрації: " + e.message);
+            } else {
+                setErr("Сталася невідома помилка");
+            }
         }
     };
 
     return (
-        <View style={styles.bg}>
+        <View style={{flex: 1, justifyContent: "center", backgroundColor: theme.colors.background}}>
             <Stack.Screen
                 options={{
                     title: 'Регістрація',
+                    headerStyle: { backgroundColor: theme.colors.elevation.level1 },
+                    headerTintColor: theme.colors.primary,
+                    headerTitleStyle: { color: theme.colors.primary },
                 }}
             />
             <Card style={styles.card}>
@@ -43,6 +57,13 @@ export default function RegisterScreen() {
                         autoCapitalize="none"
                     />
                     <TextInput
+                        label="Телефон"
+                        value={data.phone}
+                        onChangeText={v => setData({ ...data, phone: v })}
+                        style={styles.input}
+                        keyboardType="phone-pad"
+                    />
+                    <TextInput
                         label="Пароль"
                         secureTextEntry
                         value={data.password}
@@ -60,8 +81,7 @@ export default function RegisterScreen() {
 }
 
 const styles = StyleSheet.create({
-    bg: { flex: 1, justifyContent: "center", backgroundColor: "#f7f7f7" },
     card: { margin: 20, borderRadius: 18, elevation: 4 },
-    input: { marginBottom: 12, backgroundColor: "#fff" },
+    input: { marginBottom: 12},
     btn: { marginTop: 6 },
 });

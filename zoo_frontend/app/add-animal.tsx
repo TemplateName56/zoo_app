@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, ScrollView, StyleSheet, Alert } from "react-native";
-import { TextInput, Button, Text, Card, Avatar } from "react-native-paper";
+import {TextInput, Button, Text, Card, Avatar, useTheme} from "react-native-paper";
 import * as ImagePicker from 'expo-image-picker';
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {Stack, useRouter} from "expo-router";
@@ -15,6 +15,7 @@ export default function AddAnimalScreen() {
     const [extraPhotos, setExtraPhotos] = useState<AnimalPhoto[]>([]);
     const router = useRouter();
     const queryClient = useQueryClient();
+    const theme = useTheme();
 
     const addAnimalMutation = useMutation({
         mutationFn: (newAnimal: any) => api.post("/animals/add", newAnimal),
@@ -65,10 +66,13 @@ export default function AddAnimalScreen() {
 
     // @ts-ignore
     return (
-        <ScrollView style={styles.bg} contentContainerStyle={styles.container}>
+        <ScrollView style={{backgroundColor: theme.colors.background}} contentContainerStyle={styles.container}>
             <Stack.Screen
                 options={{
                     title: 'Додати тваринку',
+                    headerStyle: { backgroundColor: theme.colors.elevation.level1 },
+                    headerTintColor: theme.colors.primary,
+                    headerTitleStyle: { color: theme.colors.primary },
                 }}
             />
             <Text variant="headlineMedium" style={{marginBottom: 20}}>Додавання тварини</Text>
@@ -174,9 +178,8 @@ export default function AddAnimalScreen() {
 }
 
 const styles = StyleSheet.create({
-    bg: { backgroundColor: "#f7f7f7" },
     container: { padding: 20, paddingBottom: 32 },
-    input: { marginBottom: 14, backgroundColor: "#fff" },
+    input: { marginBottom: 14 },
     sexRow: { flexDirection: "row", marginBottom: 18, gap: 16 },
     sexBtn: { flex: 1 },
     saveBtn: { marginTop: 8, borderRadius: 10 },

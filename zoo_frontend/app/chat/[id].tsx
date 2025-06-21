@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { ScrollView, View, StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
-import { TextInput, Button, Text, Card } from "react-native-paper";
+import {TextInput, Button, Text, Card, useTheme} from "react-native-paper";
 import {Stack, useLocalSearchParams} from "expo-router";
 import api from "../api/api";
 
@@ -15,8 +15,8 @@ export default function ChatScreen() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [text, setText] = useState("");
     const scrollViewRef = useRef<ScrollView>(null);
+    const theme = useTheme();
 
-    // 1. Отримуємо id поточного користувача
     const myUserId = global.user?.id;
 
     const fetchMessages = () => {
@@ -27,7 +27,6 @@ export default function ChatScreen() {
         fetchMessages();
     }, [id]);
 
-    // Scroll to bottom after messages update
     useEffect(() => {
         setTimeout(() => {
             scrollViewRef.current?.scrollToEnd({ animated: true });
@@ -41,7 +40,6 @@ export default function ChatScreen() {
         fetchMessages();
     };
 
-    // Покажемо лоадер, якщо ще не знаємо id користувача
     if (!myUserId) {
         return (
             <View style={{flex:1, justifyContent:"center", alignItems:"center"}}>
@@ -52,13 +50,16 @@ export default function ChatScreen() {
 
     return (
         <KeyboardAvoidingView
-            style={{ flex: 1, backgroundColor: "#f7f7f7" }}
+            style={{ flex: 1, backgroundColor: theme.colors.background}}
             behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
             <View style={styles.container}>
                 <Stack.Screen
                     options={{
                         title: 'Чат',
+                        headerStyle: { backgroundColor: theme.colors.elevation.level1 },
+                        headerTintColor: theme.colors.primary,
+                        headerTitleStyle: { color: theme.colors.primary },
                     }}
                 />
                 <ScrollView ref={scrollViewRef} style={styles.messages}>
@@ -116,6 +117,6 @@ const styles = StyleSheet.create({
     myText: { color: "#fff", fontSize: 16 },
     theirText: { color: "#333", fontSize: 16 },
     inputRow: { flexDirection: "row", alignItems: "center", marginTop: 6 },
-    input: { flex: 1, borderRadius: 8, marginRight: 10, backgroundColor: "#fff" },
+    input: { flex: 1, borderRadius: 8, marginRight: 10 },
     sendBtn: { borderRadius: 8 },
 });

@@ -3,7 +3,7 @@ const pool = require("../../db");
 // GET /chats
 async function getChats(req, res) {
     const userId = req.user.id;
-    // Вибираємо всі чати, де userId є учасником
+
     const [rows] = await pool.query(
         `
             SELECT c.id, c.animal_id, c.user1_id, c.user2_id,
@@ -11,14 +11,15 @@ async function getChats(req, res) {
                    a.name as animal_name
             FROM chats c
                      LEFT JOIN animals a ON c.animal_id = a.id
-                -- companion - це user1 або user2, але не поточний користувач
                      LEFT JOIN users u ON u.id = (CASE WHEN c.user1_id = ? THEN c.user2_id ELSE c.user1_id END)
-            WHERE c.user1_id = ? OR c.user2_id = ?
+                     LEFT JOIN users animal_owner ON a.owner_id = animal_owner.id
+            WHERE (c.user1_id = ? OR c.user2_id = ?)
+              AND (a.id IS NULL OR animal_owner.isBlocked = 0)
             ORDER BY c.id DESC
         `,
         [userId, userId, userId]
     );
-    // Формуємо правильну структуру для фронтенду
+
     const chats = rows.map(row => ({
         id: row.id,
         animal: row.animal_id ? { name: row.animal_name } : undefined,
@@ -33,8 +34,11 @@ async function getChats(req, res) {
 
 // POST /chats
 async function createChat(req, res) {
+    console.log(1)
+    console.log(req.body);
     const userId = req.user.id;
     let { other_user_id, animal_id } = req.body;
+    console.log(other_user_id, animal_id);
 
     // Якщо не передано other_user_id, але є animal_id — визначаємо власника тварини
     if (!other_user_id && animal_id) {
