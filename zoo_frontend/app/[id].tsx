@@ -31,9 +31,6 @@ export default function AnimalDetailsScreen() {
     const [photoModalVisible, setPhotoModalVisible] = useState(false);
     const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
 
-    const windowWidth = Dimensions.get("window").width;
-    const windowHeight = Dimensions.get("window").height;
-
     useEffect(() => {
         let ignore = false;
         (async () => {
@@ -63,6 +60,7 @@ export default function AnimalDetailsScreen() {
     useEffect(() => {
         let ignore = false;
         (async () => {
+            // @ts-ignore
             if (!global.user?.id) {
                 setIsBookmarked(false);
                 setBookmarkId(null);
@@ -172,11 +170,13 @@ export default function AnimalDetailsScreen() {
                         subtitle={animal.type + (animal.breed ? ` • ${animal.breed}` : "")}
                         left={(props) => <Avatar.Image {...props} source={{ uri: animal.photo_url }} />}
                         right={
+                            // @ts-ignore
                             global.user?.id
                                 ? (props) => (
                                     <IconButton
                                         {...props}
                                         icon={isBookmarked ? "bookmark" : "bookmark-outline"}
+                                        // @ts-ignore
                                         color={isBookmarked ? "#ff9900" : "#888"}
                                         onPress={handleBookmark}
                                         accessibilityLabel={

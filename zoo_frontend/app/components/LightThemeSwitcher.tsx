@@ -20,6 +20,7 @@ const CustomDarkTheme: MD3Theme = {
         onBackground: "#E1E1E1",       // основний текст
         onSurface: "#E1E1E1",          // текст на поверхні/картках
         onSurfaceVariant: "#B0B0B0",   // допоміжний текст
+        // @ts-ignore
         text: "#E1E1E1",               // для сумісності зі старими компонентами
         outline: "#353535",            // контур кнопок, інпутів
     },

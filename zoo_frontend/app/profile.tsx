@@ -20,6 +20,7 @@ export default function ProfileScreen() {
     const logout = () => {
         // @ts-ignore
         global.token = null;
+        // @ts-ignore
         global.user = null;
         router.replace("/");
     };

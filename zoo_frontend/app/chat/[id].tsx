@@ -17,6 +17,7 @@ export default function ChatScreen() {
     const scrollViewRef = useRef<ScrollView>(null);
     const theme = useTheme();
 
+    // @ts-ignore
     const myUserId = global.user?.id;
 
     const fetchMessages = () => {

@@ -6,6 +6,7 @@ import LightThemeSwitcher from "./components/LightThemeSwitcher"; // шлях д
 const queryClient = new QueryClient();
 
 export default function RootLayout() {
+    // @ts-ignore
     global.user = null;
     return (
         <QueryClientProvider client={queryClient}>

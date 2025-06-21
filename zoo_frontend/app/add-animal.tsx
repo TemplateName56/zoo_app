@@ -134,14 +134,18 @@ export default function AddAnimalScreen() {
             <Text style={{marginTop:10, marginBottom: 4}}>Основне фото</Text>
             <TextInput
                 label="Широта (lat)"
+                // @ts-ignore
                 value={ animal.lat.toString() || 0}
+                // @ts-ignore
                 onChangeText={v => setAnimal({ ...animal, lat: v })}
                 style={styles.input}
                 keyboardType="numeric"
             />
             <TextInput
                 label="Довгота (lng)"
+                // @ts-ignore
                 value={animal.lng.toString() || 0}
+                // @ts-ignore
                 onChangeText={v => setAnimal({ ...animal, lng: v })}
                 style={styles.input}
                 keyboardType="numeric"

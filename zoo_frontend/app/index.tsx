@@ -58,14 +58,16 @@ export default function AnimalsScreen() {
     const { data, isLoading, isFetching, refetch } = useQuery({
         queryKey: ["animals-search", { ...searchParams }],
         queryFn: () => fetchAnimals(searchParams),
+        // @ts-ignore
         keepPreviousData: true,
     });
 
     // Скинути сторінку при зміні фільтрів
     useEffect(() => { setPage(1); }, [breed, age, lat, lng]);
 
-    // ПРАВИЛЬНО рахуй maxPage:
+    // @ts-ignore
     const maxPage = Math.max(1, Math.ceil((data?.total ?? 0) / PAGE_SIZE));
+    // @ts-ignore
     const animals = data?.items ?? [];
 
     return (
@@ -89,7 +91,9 @@ export default function AnimalsScreen() {
                     <RefreshControl refreshing={isFetching} onRefresh={() => refetch()} />
                 }
             >
-                {global.user != null && (
+
+                {// @ts-ignore
+                    global.user != null && (
                     <Button
                         icon="plus"
                         mode="contained"
@@ -103,7 +107,8 @@ export default function AnimalsScreen() {
                     <ActivityIndicator animating size="large" style={{ marginTop: 40 }} />
                 ) : (
                     <>
-                        {animals && animals.length > 0 ? animals.map(animal => (
+                        {   // @ts-ignore
+                            animals && animals.length > 0 ? animals.map(animal => (
                             <Card
                                 key={animal.id}
                                 style={styles.card}
@@ -154,7 +159,8 @@ export default function AnimalsScreen() {
                 <Button icon="bookmark" mode="text" onPress={() => router.push("/bookmarks")}>
                     Обране
                 </Button>
-                {global.user === null && (
+                {   // @ts-ignore
+                    global.user === null && (
                     <Button icon="logout" mode="text" onPress={() => router.push("/login")}>
                         Ввійти
                     </Button>

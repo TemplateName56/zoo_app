@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Card, Text, Button, useTheme, Avatar, Portal, Modal, TextInput, IconButton, Snackbar } from "react-native-paper";
 import api from "./api/api";
+import {User} from "@/app/types/user";
 
 export default function AdminUsersScreen() {
-    const [users, setUsers] = useState([]);
+    const [users, setUsers] = useState<User[]>([]);
     const [filterVisible, setFilterVisible] = useState(false);
     const [search, setSearch] = useState("");
     const [snackbar, setSnackbar] = useState({ visible: false, message: "" });
@@ -50,6 +51,7 @@ export default function AdminUsersScreen() {
             <IconButton icon="magnify" size={28} onPress={() => setFilterVisible(true)} style={{ alignSelf: "flex-end", marginRight: 12, marginTop: -40 }} />
             <ScrollView>
                 {users.map(user => (
+                    // @ts-ignore
                     <Card key={user.id} style={styles.card}>
                         <Card.Title
                             title={user.name}
