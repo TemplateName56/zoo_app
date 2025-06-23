@@ -40,9 +40,8 @@ async function getAnimals(req, res) {
 
 async function getAnimalsByOwnerId(req, res) {
     const { owner_id } = req.query;
-    console.log(req.query);
     const [rows] = await pool.query("SELECT * FROM animals WHERE owner_id = ? ORDER BY created_at DESC", [owner_id]);
-    res.json(rows); // повертаємо масив
+    res.json(rows);
 }
 
 // GET /animals/mine
@@ -114,18 +113,86 @@ async function createAnimal(req, res) {
     }
 }
 
-// PUT /animals/:id (оновлено для lat/lng)
+// PUT /animals/:id
 async function updateAnimal(req, res) {
     const { id } = req.params;
     const userId = req.user.id;
-    const { name, type, breed, sex, age, description, photo_url, lat, lng } = req.body;
-    const [animals] = await pool.query("SELECT owner_id FROM animals WHERE id = ?", [id]);
-    if (!animals.length || animals[0].owner_id !== userId) return res.status(403).json({ error: "Forbidden" });
-    await pool.query(
-        `UPDATE animals SET name=?, type=?, breed=?, sex=?, age=?, description=?, photo_url=?, lat=?, lng=? WHERE id=?`,
-        [name, type, breed, sex, age, description, photo_url, lat || null, lng || null]
-    );
-    res.json({ success: true });
+    const isAdmin = req.user.isAdmin || req.user.role === "admin";
+    let { name, type, breed, sex, age, description, photo_url, lat, lng, photos } = req.body;
+
+    // Перевірка наявності тваринки та прав власника/адміна
+    const [animals] = await pool.query("SELECT * FROM animals WHERE id = ?", [id]);
+    if (!animals.length) return res.status(404).json({ error: "Animal not found" });
+    if (animals[0].owner_id !== userId && !isAdmin) return res.status(403).json({ error: "Forbidden" });
+
+    // --- ОБРОБКА ГОЛОВНОГО ФОТО ---
+    let mainPhotoUrl = photo_url;
+    if (typeof photo_url === "string" && photo_url.startsWith("data:image")) {
+        // Завантажити на Cloudinary!
+        const uploadMain = await cloudinary.uploader.upload(photo_url, {
+            folder: "animal_adoption/animals"
+        });
+        mainPhotoUrl = uploadMain.secure_url;
+    }
+
+    // --- Оновлення (тільки задані поля) ---
+    const updates = [];
+    const values = [];
+    if (name) { updates.push("name=?"); values.push(name); }
+    if (type) { updates.push("type=?"); values.push(type); }
+    if (breed) { updates.push("breed=?"); values.push(breed); }
+    if (sex) { updates.push("sex=?"); values.push(sex); }
+    if (age) { updates.push("age=?"); values.push(age); }
+    if (description) { updates.push("description=?"); values.push(description); }
+    if (mainPhotoUrl) { updates.push("photo_url=?"); values.push(mainPhotoUrl); }
+    if (lat !== undefined) { updates.push("lat=?"); values.push(lat); }
+    if (lng !== undefined) { updates.push("lng=?"); values.push(lng); }
+
+    if (updates.length) {
+        values.push(id);
+        await pool.query(`UPDATE animals SET ${updates.join(', ')} WHERE id = ?`, values);
+    }
+
+    // --- ОНОВЛЕННЯ ДОДАТКОВИХ ФОТО ---
+    if (Array.isArray(photos)) {
+        // 1. Витягуємо наявні фото
+        const [currentPhotos] = await pool.query(
+            "SELECT id, photo_url FROM animal_photos WHERE animal_id=?",
+            [id]
+        );
+        const incomingPhotoUrls = photos.map(p => p.photo_url);
+
+        // 2. Видаляємо фото, яких вже нема у масиві
+        const toDelete = currentPhotos.filter(
+            p => !incomingPhotoUrls.includes(p.photo_url)
+        );
+        for (const del of toDelete) {
+            await pool.query("DELETE FROM animal_photos WHERE id=?", [del.id]);
+        }
+
+        // 3. Додаємо нові фото (яких ще нема)
+        const existingUrls = currentPhotos.map(p => p.photo_url);
+        for (const p of photos) {
+            if (!existingUrls.includes(p.photo_url)) {
+                let url = p.photo_url;
+                if (typeof url === "string" && url.startsWith("data:image")) {
+                    try {
+                        const upload = await cloudinary.uploader.upload(url, { folder: "animal_adoption/animal_photos" });
+                        url = upload.secure_url;
+                    } catch (e) {
+                        console.error("Cloudinary upload error:", e?.message || e);
+                        continue; // пропустити цю фотку
+                    }
+                }
+                await pool.query(
+                    "INSERT INTO animal_photos (animal_id, photo_url) VALUES (?, ?)",
+                    [id, url]
+                );
+            }
+        }
+    }
+
+    res.json({ success: true, photo_url: mainPhotoUrl });
 }
 
 // DELETE /animals/:id
@@ -133,8 +200,6 @@ async function deleteAnimal(req, res) {
     const { id } = req.params;
     const userId = req.user.id;
     const isAdmin = req.user.isAdmin || req.user.role === "admin";
-    console.log(req.user.isAdmin);
-    console.log(isAdmin);
     const [animals] = await pool.query("SELECT owner_id FROM animals WHERE id = ?", [id]);
     if (!animals.length || (animals[0].owner_id !== userId && !isAdmin)) return res.status(403).json({ error: "Forbidden" });
     await pool.query("DELETE FROM animals WHERE id = ?", [id]);

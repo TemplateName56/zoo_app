@@ -148,6 +148,9 @@ export default function AnimalDetailsScreen() {
 
     // @ts-ignore
     const isOwner = animal.owner_id === global.user?.id;
+    // @ts-ignore
+    const isAdmin = !!global.user?.isAdmin;
+
     const hasCoords = !!animal.lat && !!animal.lng && !isNaN(Number(animal.lat)) && !isNaN(Number(animal.lng));
     const lat = Number(animal.lat);
     const lng = Number(animal.lng);
@@ -284,6 +287,18 @@ export default function AnimalDetailsScreen() {
                     </View>
                 )}
 
+                {/* Кнопка редагування для власника або адміна */}
+                {(isOwner || isAdmin) && (
+                    <Button
+                        mode="contained"
+                        icon="pencil"
+                        style={{ marginTop: 16, backgroundColor: "#1976d2" }}
+                        onPress={() => router.push(`/edit_animal/${animal.id}`)}
+                    >
+                        Редагувати
+                    </Button>
+                )}
+
                 {/* Кнопка видалення тільки для власника */}
                 {isOwner && (
                     <Button
@@ -336,8 +351,8 @@ const styles = StyleSheet.create({
     container: { padding: 20, alignItems: "stretch", paddingBottom: 40 },
     card: { marginBottom: 24, borderRadius: 14, elevation: 2 },
     mainPhoto: { height: 200, borderTopLeftRadius: 14, borderTopRightRadius: 14 },
-    ownerCard: { marginBottom: 24, borderRadius: 14, elevation: 1, backgroundColor: "#fafafa" },
-    mapWrap: { marginTop: 20, marginBottom: 12, borderRadius: 14, overflow: "hidden", backgroundColor: "#eaeaea" },
+    ownerCard: { marginBottom: 24, borderRadius: 14, elevation: 1 },
+    mapWrap: { marginTop: 20, marginBottom: 12, borderRadius: 14, overflow: "hidden" },
     map: {
         width: "100%",
         height: 220,

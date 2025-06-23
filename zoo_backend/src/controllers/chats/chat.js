@@ -34,11 +34,8 @@ async function getChats(req, res) {
 
 // POST /chats
 async function createChat(req, res) {
-    console.log(1)
-    console.log(req.body);
     const userId = req.user.id;
     let { other_user_id, animal_id } = req.body;
-    console.log(other_user_id, animal_id);
 
     // Якщо не передано other_user_id, але є animal_id — визначаємо власника тварини
     if (!other_user_id && animal_id) {

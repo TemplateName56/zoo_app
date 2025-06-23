@@ -4,7 +4,7 @@ export interface Animal {
     type: string;
     breed?: string;
     sex?: "male" | "female";
-    age?: number | string;
+    age?: number;
     description?: string;
     photo_url: string;
     owner_id?: number;

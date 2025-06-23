@@ -68,22 +68,8 @@ async function getProfile(req, res) {
     res.json(users[0]);
 }
 
-async function updateProfile(req, res) {
-    const userId = req.user.id;
-    const { name, phone, avatar_url, } = req.body;
-    try {
-        await pool.query(
-            `UPDATE users SET name=?, phone=?, avatar_url=? WHERE id=?`,
-            [name, phone, avatar_url, userId]
-        );
-        res.json({ success: true });
-    } catch (e) {
-        res.status(500).json({ error: "Server error" });
-    }
-}
-
 async function blockProfile(req, res) {
 
 }
 
-module.exports = { register, login, getProfile, updateProfile };
+module.exports = { register, login, getProfile };
