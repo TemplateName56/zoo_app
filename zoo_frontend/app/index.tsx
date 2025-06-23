@@ -62,6 +62,14 @@ export default function AnimalsScreen() {
         keepPreviousData: true,
     });
 
+    const logout = () => {
+        // @ts-ignore
+        global.token = null;
+        // @ts-ignore
+        global.user = null;
+        router.replace("/");
+    };
+
     // Скинути сторінку при зміні фільтрів
     useEffect(() => { setPage(1); }, [breed, age, lat, lng]);
 
@@ -94,14 +102,14 @@ export default function AnimalsScreen() {
 
                 {// @ts-ignore
                     global.user != null && (
-                    <Button
-                        icon="plus"
-                        mode="contained"
-                        style={styles.addBtn}
-                        onPress={() => router.push("/add-animal")}
-                        contentStyle={{ flexDirection: "row-reverse" }}
-                    >Додати тваринку</Button>
-                )}
+                        <Button
+                            icon="plus"
+                            mode="contained"
+                            style={styles.addBtn}
+                            onPress={() => router.push("/add-animal")}
+                            contentStyle={{ flexDirection: "row-reverse" }}
+                        >Додати тваринку</Button>
+                    )}
 
                 {isLoading ? (
                     <ActivityIndicator animating size="large" style={{ marginTop: 40 }} />
@@ -109,29 +117,29 @@ export default function AnimalsScreen() {
                     <>
                         {   // @ts-ignore
                             animals && animals.length > 0 ? animals.map(animal => (
-                            <Card
-                                key={animal.id}
-                                style={styles.card}
-                                onPress={() => router.push(`/${animal.id}`)}
-                            >
-                                <Card.Title
-                                    title={animal.name}
-                                    subtitle={animal.type + (animal.breed ? ` • ${animal.breed}` : "")}
-                                    left={(props) => (
-                                        <Avatar.Image
-                                            {...props}
-                                            source={{ uri: animal.photo_url }}
-                                        />
-                                    )}
-                                />
-                                <Card.Cover source={{ uri: animal.photo_url }} style={styles.image} />
-                                <Card.Content>
-                                    <Text style={styles.desc} numberOfLines={2}>{animal.description}</Text>
-                                </Card.Content>
-                            </Card>
-                        )) : (
-                            <Text style={{ marginTop: 40, textAlign: "center" }}>Жодної тварини не знайдено.</Text>
-                        )}
+                                <Card
+                                    key={animal.id}
+                                    style={styles.card}
+                                    onPress={() => router.push(`/${animal.id}`)}
+                                >
+                                    <Card.Title
+                                        title={animal.name}
+                                        subtitle={animal.type + (animal.breed ? ` • ${animal.breed}` : "")}
+                                        left={(props) => (
+                                            <Avatar.Image
+                                                {...props}
+                                                source={{ uri: animal.photo_url }}
+                                            />
+                                        )}
+                                    />
+                                    <Card.Cover source={{ uri: animal.photo_url }} style={styles.image} />
+                                    <Card.Content>
+                                        <Text style={styles.desc} numberOfLines={2}>{animal.description}</Text>
+                                    </Card.Content>
+                                </Card>
+                            )) : (
+                                <Text style={{ marginTop: 40, textAlign: "center" }}>Жодної тварини не знайдено.</Text>
+                            )}
                     </>
                 )}
 
@@ -161,10 +169,18 @@ export default function AnimalsScreen() {
                 </Button>
                 {   // @ts-ignore
                     global.user === null && (
-                    <Button icon="logout" mode="text" onPress={() => router.push("/login")}>
-                        Ввійти
-                    </Button>
-                )}
+                        <Button icon="login" mode="text" onPress={() => router.push("/login")}>
+                            Ввійти
+                        </Button>
+                    )
+                }
+                {   // @ts-ignore
+                    global.user !== null && (
+                        <Button icon="logout" mode="text" onPress={logout}>
+                            Вихід
+                        </Button>
+                    )
+                }
             </View>
 
             {/* --- Бокове модальне вікно пошуку --- */}

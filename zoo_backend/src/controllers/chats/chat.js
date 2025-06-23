@@ -14,7 +14,7 @@ async function getChats(req, res) {
                      LEFT JOIN users u ON u.id = (CASE WHEN c.user1_id = ? THEN c.user2_id ELSE c.user1_id END)
                      LEFT JOIN users animal_owner ON a.owner_id = animal_owner.id
             WHERE (c.user1_id = ? OR c.user2_id = ?)
-              AND (a.id IS NULL OR animal_owner.isBlocked = 0)
+              AND animal_owner.isBlocked = 0
             ORDER BY c.id DESC
         `,
         [userId, userId, userId]
@@ -97,9 +97,25 @@ async function sendMessage(req, res) {
     res.status(201).json({ success: true });
 }
 
+// DELETE /chats/:id
+async function deleteChat(req, res) {
+    const { id } = req.params;
+    const userId = req.user.id;
+    const [chats] = await pool.query(
+        "SELECT * FROM chats WHERE id = ? AND (user1_id = ? OR user2_id = ?)",
+        [id, userId, userId]
+    );
+    if (!chats.length) return res.status(403).json({ error: "Forbidden" });
+
+    await pool.query("DELETE FROM messages WHERE chat_id = ?", [id]);
+    await pool.query("DELETE FROM chats WHERE id = ?", [id]);
+    res.json({ success: true });
+}
+
 module.exports = {
     getChats,
     createChat,
     getChatMessages,
-    sendMessage
+    sendMessage,
+    deleteChat,
 };

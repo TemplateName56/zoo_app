@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { ScrollView, StyleSheet } from "react-native";
-import {Card, Text, Button, Avatar, useTheme} from "react-native-paper";
+import {Alert, ScrollView, StyleSheet} from "react-native";
+import {Card, Text, Button, Avatar, useTheme, IconButton} from "react-native-paper";
 import {Stack, useRouter} from "expo-router";
 import api from "./api/api";
 
@@ -18,6 +18,28 @@ export default function ChatListScreen() {
     useEffect(() => {
         api.get("/chats").then(res => setChats(res.data));
     }, []);
+
+    const handleDeleteChat = (chatId: number) => {
+        Alert.alert(
+            "Підтвердження",
+            "Ви дійсно бажаєте видалити цей чат?",
+            [
+                { text: "Скасувати", style: "cancel" },
+                {
+                    text: "Видалити",
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            await api.delete(`/chats/${chatId}`);
+                            setChats(prev => prev.filter(c => c.id !== chatId));
+                        } catch {
+                            Alert.alert("Помилка", "Не вдалося видалити чат.");
+                        }
+                    }
+                }
+            ]
+        );
+    };
 
     return (
         <ScrollView style={{backgroundColor: theme.colors.background}} contentContainerStyle={styles.container}>
@@ -44,6 +66,14 @@ export default function ChatListScreen() {
                                 ? <Avatar.Image {...props} source={{ uri: item.companion.avatar_url }} />
                                 : <Avatar.Text {...props} label={item.companion?.name?.[0] || "?"} />
                         }
+                        right={(props) => (
+                            <IconButton
+                                {...props}
+                                icon="delete"
+                                color="red"
+                                onPress={() => handleDeleteChat(item.id)}
+                            />
+                        )}
                     />
                 </Card>
             )) : (

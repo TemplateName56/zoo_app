@@ -87,7 +87,7 @@ export default function AdminScreen() {
                 <Button icon="message" mode="text" onPress={() => router.push("/admin_screen")}>
                     Тваринки
                 </Button>
-                <Button icon="message" mode="text" onPress={logout}>
+                <Button icon="logout" mode="text" onPress={logout}>
                     Вихід
                 </Button>
             </View>
