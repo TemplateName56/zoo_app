@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { Card, Text, Button, useTheme, Avatar, Portal, Modal, TextInput, IconButton, Snackbar } from "react-native-paper";
 import api from "./api/api";
 import {User} from "@/app/types/user";
+import {Stack} from "expo-router";
 
 export default function AdminUsersScreen() {
     const [users, setUsers] = useState<User[]>([]);
@@ -47,6 +48,14 @@ export default function AdminUsersScreen() {
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+            <Stack.Screen
+                options={{
+                    title: 'Адмін-панель: Користувачі',
+                    headerStyle: { backgroundColor: theme.colors.elevation.level1 },
+                    headerTintColor: theme.colors.primary,
+                    headerTitleStyle: { color: theme.colors.primary },
+                }}
+            />
             <Text style={styles.title}>Адмін-панель: Користувачі</Text>
             <IconButton icon="magnify" size={28} onPress={() => setFilterVisible(true)} style={{ alignSelf: "flex-end", marginRight: 12, marginTop: -40 }} />
             <ScrollView>

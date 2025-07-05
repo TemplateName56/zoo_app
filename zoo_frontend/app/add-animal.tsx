@@ -22,8 +22,7 @@ export default function AddAnimalScreen() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["animals"] });
             queryClient.invalidateQueries({ queryKey: ["breeds"] });
-            router.back();
-            router.back();
+            router.replace("/");
         },
         onError: () => {
             Alert.alert("Помилка", "Не вдалося додати тварину");
@@ -131,7 +130,7 @@ export default function AddAnimalScreen() {
                 keyboardType="numeric"
             />
 
-            <Text style={{marginTop:10, marginBottom: 4}}>Основне фото</Text>
+            <Text style={{marginTop:10, marginBottom: 4}}>Координати</Text>
             <TextInput
                 label="Широта (lat)"
                 // @ts-ignore

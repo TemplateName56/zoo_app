@@ -68,7 +68,7 @@ export default function AdminScreen() {
                         <Card.Actions>
                             <Button onPress={() =>
                                 // @ts-ignore
-                                router.push(`/edit-animal/${animal.id}`)}>
+                                router.push(`/edit_animal/${animal.id}`)}>
                                 Редагувати
                             </Button>
                             <Button onPress={() =>
