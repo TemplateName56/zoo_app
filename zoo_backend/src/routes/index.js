@@ -13,7 +13,6 @@ router.use("/auth", authRoutes);
 router.use("/animals", animalRoutes);
 router.use("/bookmarks", bookmarkRoutes);
 router.use("/chats", chatRoutes);
-router.use("/upload", uploadRoutes);
 router.use("/admin", adminRoutes);
 router.use("/users", userRoutes);
 
