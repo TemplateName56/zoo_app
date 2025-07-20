@@ -1,6 +1,5 @@
 const pool = require("../../db");
 
-// GET /bookmarks
 async function getBookmarks(req, res) {
     const userId = req.user.id;
     const [rows] = await pool.query(
@@ -15,7 +14,6 @@ async function getBookmarks(req, res) {
     res.json({ items: rows });
 }
 
-// POST /bookmarks
 async function addBookmark(req, res) {
     const userId = req.user.id;
     const { animal_id } = req.body;
@@ -35,7 +33,6 @@ async function addBookmark(req, res) {
     res.status(201).json({ id: result.insertId });
 }
 
-// DELETE /bookmarks/:id
 async function removeBookmark(req, res) {
     const userId = req.user.id;
     const { id } = req.params;

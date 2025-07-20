@@ -7,7 +7,6 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// GET /animals
 async function getAnimals(req, res) {
     const { type, breed, owner_id } = req.query;
     const page = parseInt(req.query.page) || 1;
@@ -44,14 +43,12 @@ async function getAnimalsByOwnerId(req, res) {
     res.json(rows);
 }
 
-// GET /animals/mine
 async function getMyAnimals(req, res) {
     const userId = req.user.id;
     const [rows] = await pool.query("SELECT * FROM animals WHERE owner_id = ? ORDER BY created_at DESC", [userId]);
     res.json(rows);
 }
 
-// GET /animals/:id
 async function getAnimalById(req, res) {
     const { id } = req.params;
     const [rows] = await pool.query("SELECT * FROM animals WHERE id = ?", [id]);
@@ -59,7 +56,6 @@ async function getAnimalById(req, res) {
     res.json(rows[0]);
 }
 
-// POST /animals
 async function createAnimal(req, res) {
     const userId = req.user.id;
     let { name, type, breed, sex, age, description, photo_url, photos, lat, lng } = req.body;
@@ -113,7 +109,6 @@ async function createAnimal(req, res) {
     }
 }
 
-// PUT /animals/:id
 async function updateAnimal(req, res) {
     const { id } = req.params;
     const userId = req.user.id;
@@ -195,7 +190,6 @@ async function updateAnimal(req, res) {
     res.json({ success: true, photo_url: mainPhotoUrl });
 }
 
-// DELETE /animals/:id
 async function deleteAnimal(req, res) {
     const { id } = req.params;
     const userId = req.user.id;
@@ -206,14 +200,12 @@ async function deleteAnimal(req, res) {
     res.json({ success: true });
 }
 
-// GET /animals/:id/photos
 async function getAnimalPhotos(req, res) {
     const { id } = req.params;
     const [rows] = await pool.query("SELECT photo_url FROM animal_photos WHERE animal_id = ?", [id]);
     res.json(rows);
 }
 
-// GET /animals/search?breed=&age=&lat=&lng=&page=&limit=
 async function searchAnimals(req, res) {
     const { breed, age, lat, lng } = req.query;
     const page = parseInt(req.query.page) || 1;
@@ -262,7 +254,6 @@ async function searchAnimals(req, res) {
     }
 }
 
-// GET /animals/breeds -- список унікальних порід
 async function getBreeds(req, res) {
     const [rows] = await pool.query("SELECT DISTINCT breed FROM animals WHERE breed IS NOT NULL AND breed <> '' ORDER BY breed ASC");
     res.json(rows.map(r => r.breed));

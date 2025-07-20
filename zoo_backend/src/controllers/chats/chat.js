@@ -1,6 +1,5 @@
 const pool = require("../../db");
 
-// GET /chats
 async function getChats(req, res) {
     const userId = req.user.id;
 
@@ -32,7 +31,6 @@ async function getChats(req, res) {
     res.json(chats);
 }
 
-// POST /chats
 async function createChat(req, res) {
     const userId = req.user.id;
     let { other_user_id, animal_id } = req.body;
@@ -64,7 +62,6 @@ async function createChat(req, res) {
     res.status(201).json({ id: result.insertId });
 }
 
-// GET /chats/:id/messages
 async function getChatMessages(req, res) {
     const { id } = req.params;
     const userId = req.user.id;
@@ -78,7 +75,6 @@ async function getChatMessages(req, res) {
     res.json(rows);
 }
 
-// POST /chats/:id/messages
 async function sendMessage(req, res) {
     const { id } = req.params;
     const userId = req.user.id;
@@ -94,7 +90,6 @@ async function sendMessage(req, res) {
     res.status(201).json({ success: true });
 }
 
-// DELETE /chats/:id
 async function deleteChat(req, res) {
     const { id } = req.params;
     const userId = req.user.id;

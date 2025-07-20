@@ -1,6 +1,5 @@
 const pool = require("../../db");
 
-// GET /users/:id
 async function getUser(req, res) {
     const { id } = req.params;
     const [rows] = await pool.query(

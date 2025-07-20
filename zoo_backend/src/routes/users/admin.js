@@ -5,8 +5,8 @@ const { adminMiddleware } = require("../../utils/adminMiddleware");
 
 const router = express.Router();
 
-router.get("/", authMiddleware, adminMiddleware, getAllUsers);              // GET /users?search=
-router.post("/block/:userId", authMiddleware, adminMiddleware, blockUser);  // POST /users/block/:userId
-router.post("/unblock/:userId", authMiddleware, adminMiddleware, unblockUser); // POST /users/unblock/:userId
+router.get("/", authMiddleware, adminMiddleware, getAllUsers);
+router.post("/block/:userId", authMiddleware, adminMiddleware, blockUser);
+router.post("/unblock/:userId", authMiddleware, adminMiddleware, unblockUser);
 
 module.exports = router;

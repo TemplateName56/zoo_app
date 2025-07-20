@@ -1,6 +1,5 @@
 const pool = require("../../db");
 
-// Пошук користувачів за ім'ям або email (GET /users?search=...)
 async function getAllUsers(req, res) {
     const { search } = req.query;
     let sql = "SELECT id, name, email, phone, avatar_url, created_at, isAdmin, isBlocked FROM users";
@@ -14,7 +13,6 @@ async function getAllUsers(req, res) {
     res.json(rows);
 }
 
-// Заблокувати користувача (POST /users/block/:userId)
 async function blockUser(req, res) {
     const { userId } = req.params;
     // Захист від самоблокування
@@ -25,7 +23,6 @@ async function blockUser(req, res) {
     res.json({ success: true });
 }
 
-// Розблокувати користувача
 async function unblockUser(req, res) {
     const { userId } = req.params;
     const [users] = await pool.query("SELECT id FROM users WHERE id = ?", [userId]);
