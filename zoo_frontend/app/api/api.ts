@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: "http://192.168.0.159:4000/api", // Заміни на свій backend
+    baseURL: "http://localhost:4000/api",
 });
 
 api.interceptors.request.use((config) => {
